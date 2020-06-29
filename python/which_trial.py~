@@ -1,0 +1,5 @@
+def which_trial(y_labels, trials):
+    if trials == 'ND_trials':
+        y_trials = np.argwhere((y_frame_labels[4]==0) & (y_frame_labels[8]==0)).flatten()
+    elif trials == 'D1_trials':
+        y_trials = np.argwhere((y_frame_labels[4]==13) & (y_frame_labels[8]==0)).flatten()
