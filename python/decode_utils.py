@@ -20,9 +20,9 @@ def cross_validate_clf(split_windows, y_S1_S2, cv, scoring, clf):
     j = 0
     for X_window in split_windows:
         j = j+1
-        print('Window iteration #' + str(j))
-        print('window shape of current iteration')
-        print(X_window.shape)
+        # print('Window iteration #' + str(j))
+        # print('window shape of current iteration')
+        # print(X_window.shape)
         #reshaping the array for samples = trials features = electrodes by time features
         X_window  = np.reshape((X_window), (X_window.shape[0], X_window.shape[1]* X_window.shape[2]))
         # X_window = np.mean(X_window, axis=1)
@@ -35,9 +35,9 @@ def cross_validate_clf(split_windows, y_S1_S2, cv, scoring, clf):
         #iterating over the dictionary
         for key, value in out.items():
             i = i + 1
-            print('crossvalidation  value #' + str(i))
-            print(key)
-            print(value)
+            # print('crossvalidation  value #' + str(i))
+            # print(key)
+            # print(value)
             if i == num_elements_cv-1:
                 #calculating the mean of the crossvalidation results
                 S1_f_score.append(np.average(value))
