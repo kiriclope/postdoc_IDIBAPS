@@ -1,0 +1,22 @@
+#ifndef __GLOBALVARS__ 
+#define __GLOBALVARS__ 
+
+//////////////////////////////////////////
+// Simulation globals
+//////////////////////////////////////////
+#define DT .1 
+#define DURATION .250E3 // 10.E3  //
+
+#define TIME_STEADY .005E3 //  2.0E3 // 10.E3 // 
+#define TIME_WINDOW .050E3 // 1.00E3 // 10.E3 // 
+
+#define IF_EULER 1
+#define IF_RK2 0 
+
+//////////////////////////////////////////
+// Network globals
+//////////////////////////////////////////
+
+#define m0 1.0E-3
+
+#endif
