@@ -4,9 +4,9 @@ dir = "test"
 
 n_pop = 1
 n_neurons = 1
-K = 4000
+K = 500
 
-m0 = .001
+m0 = .01
 
 from get_param import *
 ext_inputs, J, Tsyn = get_param(n_pop, dir) ;
