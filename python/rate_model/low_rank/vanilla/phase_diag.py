@@ -1,21 +1,21 @@
-import importlib, sys
-from importlib import reload
+import importlib, sys 
+from importlib import reload 
 
-import numpy as np
-import matplotlib.pyplot as plt
+import numpy as np 
+import matplotlib.pyplot as plt 
 
-import constants as gv
-importlib.reload(gv)
+import constants as gv 
+importlib.reload(gv) 
 
-import fct_facilities as fac
-importlib.reload(fac)
+import fct_facilities as fac 
+importlib.reload(fac) 
 
-fac.SetPlotParams()
+fac.SetPlotParams() 
 
-def gVsSig1(sigma_1):
-    g = np.sqrt(np.pi/2 * (4*sigma_1**2-1)/np.arcsin(1-1/4/sigma_1**2))
-    g[np.isnan(g)]=1
-    return g
+def gVsSig1(sigma_1): 
+    g = np.sqrt(np.pi/2 * (4*sigma_1**2-1)/np.arcsin(1-1/4/sigma_1**2)) 
+    g[np.isnan(g)]=1 
+    return g 
 
 sigma_1 = np.arange(0.5,4,.01)
 g = gVsSig1(sigma_1)

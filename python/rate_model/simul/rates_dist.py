@@ -10,6 +10,7 @@ importlib.reload(sys.modules['constants'])
 gv.init_param()
 
 filter_rates = np.loadtxt(gv.path + 'filter_rates.dat') ;
+print(filter_rates.shape)
 
 time = filter_rates[:,0]
 print(time)
@@ -20,7 +21,9 @@ print(rates.shape)
 mean_rates = np.mean(rates)
 print(mean_rates)
 
-plt.hist(rates)
+logrates = [np.log(i) for i in rates if i>=.01]
+
+plt.hist(logrates)
 plt.xlabel('rates (Hz)')
 plt.ylabel('count')
 plt.show()

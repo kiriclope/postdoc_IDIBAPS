@@ -20,10 +20,10 @@ def phi(x): # normal distribution
 #### Single Gaussian intergrals
 
 def intPhi (mu, delta0):
-    integrand = Phi(mu+np.sqrt(delta0)*gauss_points)
-    return gaussian_norm * np.dot (integrand,gauss_weights)
+    return Phi( mu/np.sqrt(1.0 + delta0) ) 
+    # integrand = Phi(mu+np.sqrt(delta0)*gauss_points)
+    # return gaussian_norm * np.dot (integrand,gauss_weights)
 
 def intPhiSq (mu, delta0):
     integrand = Phi(mu+np.sqrt(delta0)*gauss_points)**2
     return gaussian_norm * np.dot (integrand,gauss_weights)
-

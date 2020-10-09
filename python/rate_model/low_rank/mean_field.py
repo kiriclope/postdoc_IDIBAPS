@@ -161,3 +161,4 @@ def solve_mf(branch):
     print('kappa',np.sqrt(np.maximum(0,sigma-variance(u,sigma))/gv.sigma_1))
     return y
 
+<

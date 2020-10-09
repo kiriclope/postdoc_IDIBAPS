@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 import constants as gv
 importlib.reload(sys.modules['constants'])
 
-sigma_1 = []
+J1 = []
 kappas = []
 
-for gv.VAR_XI in np.arange(0,1.1,.05): 
+for gv.MEAN_XI in np.arange(0,1.1,.1):
     gv.init_param()
+
     try:
         overlap = np.loadtxt(gv.path + 'overlap.dat')
         print(overlap.shape)
@@ -20,23 +21,23 @@ for gv.VAR_XI in np.arange(0,1.1,.05):
         print(kappa.shape)
         
         kappas.append(kappa[0])
-        sigma_1.append(gv.VAR_XI)
+        J1.append(gv.MEAN_XI)
     except:
         pass
-
-print(sigma_1)
+    
+print(J1)
 print(kappas)
 
-fig = plt.figure('kappa Vs sigma_1')
-plt.plot(sigma_1,kappas,'o')
+fig = plt.figure('kappa Vs J1')
+plt.plot(J1,kappas,'o')
 
 kappa_pos = [abs(i) for i in kappas]
 kappa_neg = [-abs(i) for i in kappas]
 
-plt.plot(sigma_1,kappa_pos,'-')
-plt.plot(sigma_1,kappa_neg,'-')
+plt.plot(J1,kappa_pos,'-')
+plt.plot(J1,kappa_neg,'-')
 
-plt.xlabel('$\sigma_1$')
+plt.xlabel('$J_1$')
 plt.ylabel('$\kappa$')
 
 plt.show()
