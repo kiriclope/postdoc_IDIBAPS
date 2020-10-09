@@ -1,0 +1,114 @@
+from std_lib import * 
+sys.path.insert(1, '/homecentral/alexandre.mahrach/gdrive/postdoc_IDIBAPS/python/data_analysis')
+
+import data.constants as gv
+importlib.reload(gv) ;
+
+import data.utils as data
+importlib.reload(data) ;
+
+from sklearn_lib import *
+from mne_lib import *
+
+import utils as decode 
+importlib.reload(decode) ; 
+
+import data.fct_facilities as fac
+importlib.reload(fac) ;
+fac.SetPlotParams()
+
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
+
+IF_EPOCHS = 0
+
+if IF_EPOCHS==0 :
+    gv.epochs = ['all']
+
+script_dir = os.path.dirname(__file__)
+figs_dir = os.path.join(script_dir, 'figs/') 
+
+C=1
+penalty='l1'
+solver='liblinear' # lbfgs
+loss = 'squared_hinge'
+dual=True
+cv=10
+
+clf = LogisticRegressionCV(penalty=penalty, solver=solver, cv=cv) 
+# clf = LogisticRegression(C=C, penalty=penalty, solver=solver) 
+# clf = svm.LinearSVC(C=1, penalty='l1', loss='squared_hinge', dual=False) 
+# clf = LinearDiscriminantAnalysis() 
+
+clf_name = clf.__class__.__name__
+
+if(clf_name == 'LogisticRegression'):
+    clf_param = '/C_%.1f_penalty_%s_solver_%s/' % (C, penalty, solver)
+    figs_dir = os.path.join(figs_dir, clf_name + clf_param) 
+else:
+    figs_dir = os.path.join(figs_dir, clf_name) 
+
+if IF_EPOCHS: 
+    figs_dir = os.path.join(figs_dir, 'epochs/') 
+
+if not os.path.isdir(figs_dir):
+    os.makedirs(figs_dir) 
+
+print(figs_dir)
+
+for gv.mouse in [gv.mice[0]] : 
+
+    data.get_sessions_mouse() 
+    data.get_stimuli_times() 
+    data.get_delays_times() 
+
+    for gv.session in [gv.sessions[-1]] : 
+        X_data, y_labels = data.get_fluo_data() 
+        print('mouse', gv.mouse, 'session', gv.session, 'data X', X_data.shape,'y', y_labels.shape) 
+        
+        data.get_delays_times() 
+        data.get_frame_rate() 
+        data.get_bins(t_start=0) 
+        
+        gv.duration = X_data.shape[2]/gv.frame_rate 
+        time = np.linspace(0, gv.duration, X_data.shape[2]) ; 
+        
+        for gv.trial in [gv.trials[-1]] : 
+            X_S1_trials, X_S2_trials = data.get_S1_S2_trials(X_data, y_labels) 
+            X_trials, y_trials = data.get_X_y_epochs(X_S1_trials, X_S2_trials) 
+            
+            print('trial:', gv.trial, 'X', X_trials.shape,'y', y_trials.shape)
+
+            X_avg = np.mean(np.mean(X_trials, axis=1), axis=0)
+
+            y_detrend = []
+            for i in range(0, X_trials.shape[1]):
+                X = range(0, X_trials.shape[2])
+                y = X_trials[0,i]
+                
+                X = np.reshape(X, (len(X), 1))
+                # plt.plot(X,y)
+            
+                pf = PolynomialFeatures(degree=3)
+                Xp = pf.fit_transform(X)
+
+                md2 = LinearRegression()
+                md2.fit(Xp, y)
+                trendp = md2.predict(Xp)
+            
+                # plt.plot(X, y)
+                # plt.plot(X, trendp)
+                # plt.legend(['data', 'polynomial trend'])
+                # plt.show()
+
+                detrpoly = [y[i] - trendp[i] for i in range(0, len(y))]
+                y_detrend.append(detrpoly)
+                # plt.plot(X, detrpoly)
+                # plt.title('polynomially detrended data')
+                # plt.show()
+
+            y_detrend = np.array(y_detrend)
+            print(y_detrend.shape)
+            plt.plot(X, np.mean(y_detrend, axis=0))
+            # plt.title('polynomially detrended data')
+            # plt.show()

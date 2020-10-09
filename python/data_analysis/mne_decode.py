@@ -20,8 +20,8 @@ def cross_temp_val(clf,X,y,scoring='accuracy'):
 
     return mean_scores, std_scores
 
-def plot_cross_temp_mat(scores, interpolation='lanczos', cmap='jet'):
-    ig, ax = plt.subplots(1, 1)
+def plot_cross_temp_mat(scores, interpolation='lanczos', cmap='jet'): 
+    ig, ax = plt.subplots(1, 1) 
     im = ax.imshow(scores, interpolation='lanczos',cmap='jet', origin='lower', vmin=.5, vmax=1, extent = [-2 , 18, -2 , 18])
     ax.set_xlabel('Testing Time (s)')
     ax.set_ylabel('Training Time (s)')

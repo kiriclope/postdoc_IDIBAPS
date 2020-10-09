@@ -1,8 +1,9 @@
-global folder
-folder = []
+global mouse, mice
+mouse = []
+mice = ['C57_2_DualTask','ChRM04','JawsM15']
 
 global sessions
-sessions = ['ND', 'D1', 'D2']
+sessions = []
 
 global session
 session = []
@@ -11,7 +12,7 @@ global trials
 trials = ['ND', 'D1', 'D2']
 
 global trial
-trial = []
+trial = 'ND'
 
 global t_early_delay
 t_early_delay = []
@@ -49,6 +50,9 @@ t_DRT_reward = []
 global bins
 bins = []
 
+global delays
+delays = ['ED','DRT']
+
 global time
 time = []
 
@@ -57,3 +61,9 @@ bins_ED = []
 
 global bins_LD
 bins_LD = []
+
+global bins_DRT
+bins_DRT = []
+
+global dum
+dum = -1

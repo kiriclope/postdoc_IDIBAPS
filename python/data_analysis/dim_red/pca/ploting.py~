@@ -1,0 +1,41 @@
+import numpy as np
+# from orient.load_session import load_session
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from scipy.ndimage.filters import gaussian_filter1d
+
+import warnings
+warnings.filterwarnings("ignore")
+
+from matplotlib.lines import Line2D
+from mpl_toolkits.mplot3d import Axes3D
+
+frames_pre_stim = 30
+frames_post_stim = 30
+
+rec_freq     = 6 # 7 
+# time         = events['time'] / rec_freq
+# trial_size   = trials[0].shape[1]
+# n_neurons     = trials[0].shape[0]
+
+shade_alpha      = 0.2
+lines_alpha      = 0.8
+pal = sns.color_palette('husl', 9)
+%config InlineBackend.figure_format = 'svg'
+
+def add_stim_to_plot(ax):
+    ax.axvspan(start_stim, end_stim, alpha=shade_alpha,
+               color='gray')
+    ax.axvline(start_stim, alpha=lines_alpha, color='gray', ls='--')
+    ax.axvline(end_stim, alpha=lines_alpha, color='gray', ls='--')
+    
+def add_orientation_legend(ax):
+    custom_lines = [Line2D([0], [0], color=pal[k], lw=4) for
+                    k in range(len(trial_types))]
+    labels = ['{}$^\circ$'.format(t) for t in trial_types]
+    ax.legend(custom_lines, labels,
+              frameon=False, loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout(rect=[0,0,0.9,1])
+
