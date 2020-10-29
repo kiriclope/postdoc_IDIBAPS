@@ -24,6 +24,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis 
 from sklearn.model_selection import cross_validate
 
+import tensortools as tt
+
 import warnings
 warnings.filterwarnings("ignore")
 

@@ -1,3 +1,9 @@
+from libs import * 
+sys.path.insert(1, '/homecentral/alexandre.mahrach/gdrive/postdoc_IDIBAPS/python/data_analysis') 
+
+import data.constants as gv 
+importlib.reload(gv) ; 
+
 import numpy as np 
 from sklearn.preprocessing import StandardScaler 
 import scipy.stats as st 
@@ -13,6 +19,14 @@ def z_score(X):
     ss = StandardScaler(with_mean=True, with_std=True)
     Xz = ss.fit_transform(X.T).T
     return Xz
+
+def normalize(X):
+    # X: ndarray, shape (n_features, n_samples)
+    Xmin = np.amin(X, axis=1)
+    Xmax = np.amax(X, axis=1)
+    Xmin = Xmin[:,np.newaxis]
+    Xmax = Xmax[:,np.newaxis]
+    return (X-Xmin)/(Xmax-Xmin+gv.eps)
 
 def conf_inter(y):
     ci = []

@@ -18,16 +18,17 @@ import detrend as detrend
 
 pal = ['r','b','y'] 
 gv.samples = ['S1', 'S2'] 
-pc_shift = 0
+pc_shift = 4
+gv.trials= ['D1'] 
 
 gv.n_components = 3 #'mle' #75% => 11 C57/ChR - 18 Jaws 
 gv.correct_trial = 0  # 17-14-16 / 6
-gv.laser_on = 1 
+gv.laser_on = 0
 
 IF_DETREND = 0 
 POLY_DEG = 1
 
-for gv.mouse in [gv.mice[1]] : 
+for gv.mouse in [gv.mice[0]] : 
 
     data.get_sessions_mouse() 
     data.get_stimuli_times() 
@@ -43,15 +44,11 @@ for gv.mouse in [gv.mice[1]] :
         
         # F0 = np.mean(X[:,:,gv.bins_baseline],axis=2) 
         # F0 = F0[:,:, np.newaxis] 
-
+        
         F0 = np.mean(np.mean(X[:,:,gv.bins_baseline],axis=2), axis=0)
-        F0 = F0[np.newaxis,:, np.newaxis] 
+        F0 = F0[np.newaxis,:, np.newaxis]
         
-        # idx = np.where(F0<=0.01)[1] 
-        # F0 = np.delete(F0, idx, axis=1) 
-        # X = np.delete(X, idx, axis=1) 
-        
-        X = (X -F0) / (F0 + gv.eps) 
+        X = (X - F0) / (F0 + gv.eps) 
 
         if IF_DETREND: 
             X_trend = [] 
@@ -63,57 +60,57 @@ for gv.mouse in [gv.mice[1]] :
             X = X - X_trend[:,np.newaxis,:] 
             
         trials = [] 
-        trials_avg = [] 
+        trials_avg = []
+        X_S1_S2_avg = [] 
         for gv.trial in gv.trials: 
             X_S1, X_S2 = data.get_S1_S2_trials(X, y) 
-            data.get_trial_types(X_S1) 
+            data.get_trial_types(X_S1)
 
-            X_S1_S2 = np.vstack((X_S1, X_S2)) 
-            print('X_S1', X_S1.shape, 'X_S2', X_S2.shape) 
-            if 'all' in gv.samples: 
-                # concatenate S1 and S2 trials 
-                X_S1_S2_avg = np.mean(X_S1_S2, axis=0) 
-            else: 
-                # keep S1 and S2 trials separated 
-                X_S1_avg = np.mean(X_S1, axis=0) 
-                X_S2_avg = np.mean(X_S2, axis=0) 
-                X_S1_S2_avg = np.hstack((X_S1_avg, X_S2_avg)) 
+            # data with each trials
+            X_S1_S2 = np.vstack((X_S1, X_S2))
+            trials.append(X_S1_S2)
             
-            print('X_S1_S2', X_S1_S2.shape) 
-            print('X_S1_S2_avg', X_S1_S2_avg.shape) 
+            # average over trials 
+            # keep S1 and S2 trials separated 
+            X_S1_avg = np.mean(X_S1, axis=0) 
+            X_S2_avg = np.mean(X_S2, axis=0) 
+            trials_avg.append([X_S1_avg, X_S2_avg])
+             
 
-            trials.append(X_S1_S2) 
-            trials_avg.append(X_S1_S2_avg) 
-        
         X_trials = np.vstack(trials) 
-        print('X_trials', X_trials.shape) 
+        X_avg = np.vstack(trials_avg) 
+        print('X_trials', X_trials.shape, 'X_avg', X_avg.shape) 
         
-        X_avg = np.hstack(trials_avg) 
-        scaler = StandardScaler(with_mean=True, with_std=True) 
-        X_avg = scaler.fit_transform(X_avg.T).T 
+        # average over conditions (samples/trials) 
+        mean_cols = np.mean(X_avg, axis=0) 
+        X_avg = X_avg - mean_cols[np.newaxis,:,:] 
         print('X_avg', X_avg.shape) 
-        
-        pca = PCA(n_components=gv.n_components) 
-        pca.fit_transform(X_avg.T) 
-        explained_variance = pca.explained_variance_ratio_ 
-        gv.n_components = pca.n_components_ 
-        print('n_pc', gv.n_components,'explained_variance', explained_variance, 'total' , np.cumsum(explained_variance)[-1]) 
 
-        projected_trials = [] 
-        for i in range(X_trials.shape[0]): 
+        X_pc = np.hstack(X_avg) 
+        print('X_pc', X_pc.shape) 
+        
+        scaler = StandardScaler(with_mean=True, with_std=True) 
+        X_pc = scaler.fit_transform(X_pc.T).T         
+        pca = PCA(n_components=gv.n_components) 
+        pca.fit_transform(X_pc.T) 
+        explained_variance = pca.explained_variance_ratio_ 
+        gv.n_components = pca.n_components_
+        print('n_pc', gv.n_components,'explained_variance', explained_variance, 'total' , np.cumsum(explained_variance)[-1]) 
+    
+        projected_trials = []
+        for i in range(X_avg.shape[0]): 
             # scale every trial using the same scaling applied to the averages 
-            trial = scaler.transform(X_trials[i,:,:].T).T 
+            trial = scaler.transform(X_avg[i,:,:].T).T 
+            # trial = scaler.transform(X_trials[i,:,:].T).T 
             # project every trial using the pca fit on averages 
             proj_trial = pca.transform(trial.T).T 
             projected_trials.append(proj_trial) 
         
-        X_proj = np.asarray(projected_trials) 
-        X_proj = np.reshape(X_proj, (len(gv.trials), len(gv.samples), int(gv.n_trials/len(gv.samples)), gv.n_components, gv.trial_size)) 
-        
-        X_trials = np.reshape(X_trials, (len(gv.trials), len(gv.samples) , int(gv.n_trials/len(gv.samples)), gv.n_neurons, gv.trial_size))  
-        
+        X_proj = np.asarray(projected_trials)
+        X_proj = X_proj.reshape(len(gv.trials), len(gv.samples), gv.n_components, gv.trial_size) 
+        # X_proj = np.reshape(X_proj, (len(gv.trials), len(gv.samples), int(gv.n_trials/len(gv.samples)), gv.n_components, gv.trial_size)) 
         print(X_proj.shape) 
-
+    
         if gv.laser_on:
             figname = '%s_%s_pca_laser_on_%d' % (gv.mouse, gv.session, pc_shift)
         else:
@@ -125,18 +122,19 @@ for gv.mouse in [gv.mice[1]] :
             ax = plt.figure(figname).add_subplot(1, 3, n_pc+1) 
             for i, trial in enumerate(gv.trials): 
                 for j, sample in enumerate(gv.samples): 
-                    dum = X_proj[i,j,:,n_pc+pc_shift,:].transpose() 
-                    y = np.mean( dum, axis=1) 
-                    y = gaussian_filter1d(y, sigma=1) 
+                    # dum = X_proj[i,j,:,n_pc+pc_shift,:].transpose() 
+                    # y = np.mean( dum, axis=1) 
+                    y = X_proj[i,j,n_pc,:].transpose() 
+                    y = gaussian_filter1d(y, sigma=1)  
+                    ax.plot(x, y, color=pal[i]) 
                     
                     ax.plot(x, y, color=pal[i]) 
-                    ci = prep.conf_inter(dum) 
-                    ax.fill_between(x, ci[0], ci[1] , color=pal[i], alpha=.1) 
-                    
+                    # ci = prep.conf_inter(dum) 
+                    # ax.fill_between(x, ci[0], ci[1] , color=pal[i], alpha=.1) 
                 add_stim_to_plot(ax) 
                 ax.set_xlim([0, gv.t_test[1]+1]) 
-                    
-            ax.set_ylabel('PC {}'.format(n_pc+pc_shift+1)) 
+                
+            ax.set_ylabel('PC {}'.format(n_pc+1)) 
             ax.set_xlabel('Time (s)') 
             sns.despine(right=True, top=True)
             if n_pc == np.amin([gv.n_components,3])-1: 

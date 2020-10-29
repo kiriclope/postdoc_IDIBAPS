@@ -34,14 +34,13 @@ for gv.mouse in [gv.mice[2]] :
         data.get_frame_rate() 
         data.get_bins(t_start=0) 
 
-        # F0 = np.mean(X[:,:,gv.bins_baseline],axis=2)
-        # F0 = F0[:,:, np.newaxis]
-        
-        F0 = np.mean(np.mean(X[:,:,gv.bins_baseline],axis=2), axis=0)
-        F0 = F0[np.newaxis,:, np.newaxis]         
+        F0 = np.mean(X[:,:,gv.bins_baseline],axis=2)
+        F0 = F0[:,:, np.newaxis]
         X = (X -F0) / (F0 + gv.eps) 
-        
-        # X = (X -F0) / (F0 + 0.0000001) 
+
+        # F0 = np.mean(np.mean(X[:,:,gv.bins_baseline],axis=2), axis=0)
+        # F0 = F0[np.newaxis,:, np.newaxis]         
+        # X = (X -F0) / (F0 + gv.eps) 
         
         gv.duration = X.shape[2]/gv.frame_rate 
         time = np.linspace(0, gv.duration, X.shape[2]) ; 

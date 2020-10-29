@@ -1,9 +1,0 @@
-trial_averages = []
-for ind in t_type_ind:
-    trial_averages.append(np.array(trials)[ind].mean(axis=0))
-Xa = np.hstack(trial_averages)
-
-n_components = 15
-Xa = z_score(Xa) #Xav_sc = center(Xav)
-pca = PCA(n_components=n_components)
-Xa_p = pca.fit_transform(Xa.T).T

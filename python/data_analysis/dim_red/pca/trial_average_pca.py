@@ -13,18 +13,18 @@ importlib.reload(fac) ;
 fac.SetPlotParams() 
 
 import preprocessing as prep
-from ploting import *
+from plotting import * 
 
-shade_alpha      = 0.2
-lines_alpha      = 0.8
-pal = sns.color_palette('husl', 9)
-pal = ['r','b','y']
+pal = ['r','b','y'] 
+gv.samples = ['S1', 'S2'] 
+# gv.samples = ['all'] 
 
-trial_types = ['ND_S1','ND_S2','D1_S1','D1_S2','D2_S1','D2_S2']
+gv.trials = ['ND','D1','D2']
+gv.laser_on = 0
+n_components = 3
+AVG_EPOCHS = 0 
 
-trial_types = gv.trials
-
-for gv.mouse in [gv.mice[2]] : 
+for gv.mouse in [gv.mice[1]] : 
 
     data.get_sessions_mouse() 
     data.get_stimuli_times() 
@@ -39,73 +39,71 @@ for gv.mouse in [gv.mice[2]] :
         data.get_bins(t_start=0) 
         
         gv.duration = X.shape[2]/gv.frame_rate 
-        time = np.linspace(0, gv.duration, X.shape[2]) ; 
-
-        F0 = np.mean(X[:,:,gv.bins_baseline],axis=2) 
-        F0 = F0[:,:, np.newaxis]
+        gv.time = np.linspace(0, gv.duration, X.shape[2]) 
         
-        X = (X-F0) / (F0 + 0.0000001) 
+        F0 = np.mean(X[:,:,gv.bins_baseline], axis=2)        
+        F0 = F0[:,:, np.newaxis]
 
-        n_trials = X.shape[0]
-        n_neurons = X.shape[1] 
-        trial_size = X.shape[2]  
+        idx = np.where(F0<=0.01)[1] 
+        F0 = np.delete(F0, idx, axis=1) 
+        X = np.delete(X, idx, axis=1) 
+
+        X = (X-F0) / (F0 + 0.0000001) 
         
         trial_averages = []
         for gv.trial in gv.trials:
             X_S1, X_S2 = data.get_S1_S2_trials(X, y) 
+            data.get_trial_types(X_S1) 
 
-            print('X_S1', X_S1.shape, 'X_S2', X_S2.shape)
+            print('X_S1', X_S1.shape, 'X_S2', X_S2.shape) 
 
-            X_S1_S2 = np.vstack((X_S1, X_S2))
-            X_S1_S2 = np.mean(X_S1_S2, axis=0)
+            if AVG_EPOCHS : 
+                X_S1 = data.avgOverEpochs(X_S1) 
+                X_S2 = data.avgOverEpochs(X_S2) 
+                gv.trial_size = len(gv.epochs) 
+                
+            if 'all' in gv.samples: 
+                # concatenate S1 and S2 trials
+                X_S1_S2 = np.vstack((X_S1, X_S2)) 
+                X_S1_S2 = np.mean(X_S1_S2, axis=0) 
+            else: 
+                # keep S1 and S2 trials separated                
+                X_S1 = np.mean(X_S1, axis=0) 
+                X_S2 = np.mean(X_S2, axis=0) 
+                X_S1_S2 = np.hstack((X_S1, X_S2)) 
             
-            # X_S1 = np.mean(X_S1, axis=0)
-            # X_S2 = np.mean(X_S2, axis=0)
-            # X_S1_S2 = np.hstack((X_S1, X_S2))
-            
-            print('X_S1_S2', X_S1_S2.shape)
+            print('X_S1_S2', X_S1_S2.shape) 
 
-            trial_averages.append(X_S1_S2)
+            trial_averages.append(X_S1_S2) 
         
-        Xa = np.hstack(trial_averages)        
-        Xa = prep.z_score(Xa) #Xav_sc = center(Xav)
-        print('Xa', Xa.shape)
+        X_avg = np.hstack(trial_averages) 
+        X_avg = prep.z_score(X_avg) # Xav_sc = center(Xav)
+        print('X_avg', X_avg.shape) 
     
-        pca = PCA(n_components=3)
-        Xa_p = pca.fit_transform(Xa.T).T
+        pca = PCA(n_components=n_components)
+        X_avg_pc = pca.fit_transform(X_avg.T).T
         print('explained_variance', pca.explained_variance_ratio_)
+
+        X_avg_pc = np.asarray(X_avg_pc)
+        print(X_avg_pc.shape)
+        X_avg_pc = X_avg_pc.reshape(n_components, len(gv.trials), len(gv.samples), gv.trial_size) 
+        print(X_avg_pc.shape)
         
         fig, axes = plt.subplots(1, 3, figsize=[10, 2.8], sharey='row')
-        for comp in range(3):
-            ax = axes[comp]
-            for kk, type in enumerate(trial_types):
-                # print('pca',comp,'trial',type)
-                x = Xa_p[comp, kk * trial_size :(kk+1) * trial_size]
-                x = gaussian_filter1d(x, sigma=3)
-                ax.plot(time, x, c=pal[kk], label=type)            
-            ax.set_xlim([0, gv.t_test[1]+1])
-            add_stim_to_plot(ax)
-            ax.set_ylabel('PC {}'.format(comp+1))
-            add_orientation_legend(axes[2])
+        for pc in range(3):
+            ax = axes[pc] 
+            for i, trial in enumerate(gv.trials):
+                for j, sample in enumerate(gv.samples):
+                    y = X_avg_pc[pc, i, j] 
+                    y = gaussian_filter1d(y, sigma=3) 
+
+                    ax.plot(gv.time, y, c=pal[i], label= trial+'_'+sample) 
+                    ax.set_xlim([0, gv.t_test[1]+1])
+                    
+                    add_stim_to_plot(ax)
+                    ax.set_ylabel('PC {}'.format(pc+1))
+        add_orientation_legend(axes[2])
         axes[1].set_xlabel('Time (s)')
         sns.despine(fig=fig, right=True, top=True)
         plt.tight_layout(rect=[0, 0, 0.9, 1])
-        ax.legend()
-        
-    # find the indices of the three largest elements of the second eigenvector
-    # units = np.abs(pca.components_[1, :].argsort())[::-1][0:3]
-    # print(units)
-    # f, axes = plt.subplots(1, 3, figsize=[10, 2.8], sharey=False,
-    #                        sharex=True)
-    # for ax, unit in zip(axes, units):
-    #     ax.set_title('Neuron {}'.format(unit))
-    #     for t, ind in enumerate(t_type_ind):
-    #         x = np.array(trials)[ind][:, unit, :]
-    #         sns.tsplot(x, time=time,
-    #                    ax=ax,
-    #                    err_style='ci_band',
-    #                    ci=95,
-    #                    color=pal[t])
-        
-    # axes[1].set_xlabel('Time (s)')
-    # sns.despine(fig=f, right=True, top=True)
+        add_orientation_legend(axes[2])
