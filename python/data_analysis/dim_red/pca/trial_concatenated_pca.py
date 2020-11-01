@@ -12,15 +12,14 @@ import data.fct_facilities as fac
 importlib.reload(fac) ; 
 fac.SetPlotParams() 
 
-import preprocessing as prep
+import data.preprocessing as pp
 from plotting import *
 
 pal = ['r','b','y']
-
-trial_type = ['ND'] * 32 + ['D1'] * 32 + ['D2'] * 32
 n_components=3
+gv.trials = ['ND','D1','D2'] 
 
-for gv.mouse in [gv.mice[2]] : 
+for gv.mouse in [gv.mice[1]] : 
 
     data.get_sessions_mouse() 
     data.get_stimuli_times() 
@@ -41,43 +40,36 @@ for gv.mouse in [gv.mice[2]] :
         F0 = F0[np.newaxis,:, np.newaxis]         
         X = (X -F0) / (F0 + gv.eps) 
         
-        # X = (X -F0) / (F0 + 0.0000001) 
-        
-        gv.duration = X.shape[2]/gv.frame_rate 
-        time = np.linspace(0, gv.duration, X.shape[2]) ; 
-
-        n_trials = X.shape[0] 
-        n_neurons = X.shape[1] 
-        trial_size = X.shape[2] 
-
         trials = []
         for gv.trial in gv.trials:
             X_S1, X_S2 = data.get_S1_S2_trials(X, y) 
             data.get_trial_types(X_S1)
+            
+            trial_type = ['ND'] * gv.n_trials + ['D1'] * gv.n_trials + ['D2'] * gv.n_trials 
 
             print('X_S1', X_S1.shape, 'X_S2', X_S2.shape)
 
-            X_S1_S2 = np.vstack((X_S1, X_S2))
-            X_S1_S2 = np.reshape((X_S1_S2), (X_S1_S2.shape[1], X_S1_S2.shape[0]* X_S1_S2.shape[2]))
-
+            X_S1_S2 = np.hstack( (np.hstack(X_S1), np.hstack(X_S2)) ) 
             print('X_S1_S2', X_S1_S2.shape)
 
             trials.append(X_S1_S2)
-        
+            
         Xl = np.hstack(trials) 
-        Xl = prep.z_score(Xl)
-        
+        # Xl = pp.z_score(Xl) 
+        Xl = pp.normalize(Xl) 
         print('Xl', Xl.shape)
         
         pca = PCA(n_components=n_components)
         Xl_p = pca.fit_transform(Xl.T).T
-        print('explained_variance', pca.explained_variance_ratio_)
+        explained_variance = pca.explained_variance_ratio_ 
+        gv.n_components = pca.n_components_ 
+        print('n_pc', gv.n_components,'explained_variance', explained_variance, 'total' , np.cumsum(explained_variance)[-1]*100) 
         
         gt = {comp : {t_type : [] for t_type in gv.trials} for comp in range(n_components)}
 
         for comp in range(n_components):
             for i, t_type in enumerate(trial_type):
-                t = Xl_p[comp, trial_size * i: trial_size * (i + 1)]
+                t = Xl_p[comp, gv.trial_size * i: gv.trial_size * (i + 1)]
                 gt[comp][t_type].append(t)
 
         X_proj = []
@@ -92,8 +84,8 @@ for gv.mouse in [gv.mice[2]] :
         X_proj = np.moveaxis(X_proj, 1,4) 
         print(X_proj.shape)
         
-        f, axes = plt.subplots(1, 3, figsize=[10, 2.8], sharey=True, sharex=True)
-        x = time
+        f, axes = plt.subplots(1, 3, figsize=[10, 2.8], sharey=True, sharex=True) 
+        x = gv.time
         for comp in range(3):
             ax = axes[comp]
             for t, t_type in enumerate(gv.trials):

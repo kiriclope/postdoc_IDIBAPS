@@ -1,47 +1,30 @@
-from libs import * 
-sys.path.append('../../')
-import data.constants as gv
+from .libs import *
+from . import constants as gv
 
-shade_alpha      = 0.2
-lines_alpha      = 0.8
+shade_alpha = 0.2
+lines_alpha = 0.8
 pal = ['r','b','y']
 
 def figDir():
     script_dir = os.path.dirname(__file__) 
-    figdir = script_dir + '/figs/pca/n_pc_%d/' % gv.n_components 
+    figdir = script_dir + '/figs/' % gv.n_components 
 
     if not os.path.isdir(figdir):
         os.makedirs(figdir)
 
     return figdir
 
-def add_stim_to_plot(ax):
-    ax.axvspan(gv.t_early_delay[0], gv.t_early_delay[1], alpha=shade_alpha,
-               color='gray')
+def add_stim_to_plot(ax, bin_start=0):
 
-    ax.axvspan(gv.t_late_delay[0], gv.t_late_delay[1], alpha=shade_alpha,
-               color='gray')
+    ax.axvspan(gv.bins_ED[0]-bin_start, gv.bins_ED[-1]-bin_start, alpha=shade_alpha, color='gray')
+    ax.axvspan(gv.bins_MD[0]-bin_start, gv.bins_MD[-1]-bin_start, alpha=shade_alpha, color='blue')    
+    ax.axvspan(gv.bins_LD[0]-bin_start, gv.bins_LD[-1]-bin_start, alpha=shade_alpha, color='gray')
     
-    ax.axvspan(gv.t_DRT_delay[0], gv.t_DRT_delay[1], alpha=shade_alpha,
-               color='blue')
-    
-    ax.axvline(gv.t_sample[0], alpha=lines_alpha, color='gray', ls='-')
-    # ax.axvline(gv.t_sample[1], alpha=lines_alpha, color='gray', ls='-')
+    ax.axvline(gv.bins_dist[0]-bin_start, alpha=lines_alpha, color='k', ls='-')
+    ax.axvline(gv.bins_dist[-1]-bin_start, alpha=lines_alpha, color='k', ls='-')
 
-    ax.axvline(gv.t_early_delay[0], alpha=lines_alpha, color='gray', ls='--')
-    ax.axvline(gv.t_early_delay[1], alpha=lines_alpha, color='gray', ls='--')
-
-    ax.axvline(gv.t_DRT_delay[0], alpha=lines_alpha, color='gray', ls='--')
-    ax.axvline(gv.t_DRT_delay[1], alpha=lines_alpha, color='gray', ls='--')
-
-    ax.axvline(gv.t_late_delay[0], alpha=lines_alpha, color='gray', ls='--')
-    ax.axvline(gv.t_late_delay[1], alpha=lines_alpha, color='gray', ls='--')
-
-    # ax.axvline(gv.t_distractor[0], alpha=lines_alpha, color='gray', ls='-')
-    # ax.axvline(gv.t_distractor[1], alpha=lines_alpha, color='gray', ls='-')
-
-    # ax.axvline(gv.t_cue[0], alpha=lines_alpha, color='gray', ls='--')
-    # ax.axvline(gv.t_cue[1], alpha=lines_alpha, color='gray', ls='--')
+    ax.axvline(gv.bins_cue[0]-bin_start, alpha=lines_alpha, color='k', ls='--')
+    ax.axvline(gv.bins_cue[-1]-bin_start, alpha=lines_alpha, color='k', ls='--')
 
 def add_orientation_legend(ax):
     custom_lines = [Line2D([0], [0], color=pal[k], lw=4) for

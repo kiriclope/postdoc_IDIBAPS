@@ -17,3 +17,4 @@ from scipy.io import loadmat
 from scipy.ndimage.filters import gaussian_filter1d
 import scipy.stats as stats
 
+from sklearn.preprocessing import StandardScaler 

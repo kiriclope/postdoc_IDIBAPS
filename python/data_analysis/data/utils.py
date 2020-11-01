@@ -1,4 +1,4 @@
-from .std_lib import *
+from .libs import *
 from . import constants as gv
 
 def get_delays_times():
@@ -215,41 +215,41 @@ def get_S1_S2_all(X_data, y_labels):
 def get_bins(t_start=0):
 
     if(t_start==0): 
-        gv.bins_baseline = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_baseline[0]) & (gv.time[bin]<=gv.t_baseline[1]) ] 
+        gv.bins_baseline = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_baseline[0]) and (gv.time[bin]<=gv.t_baseline[1])] 
     
-        gv.bins_stim = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_sample[0]) & (gv.time[bin]<=gv.t_sample[1]) ] 
+        gv.bins_stim = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_sample[0]) and (gv.time[bin]<=gv.t_sample[1]) ] 
     
-        gv.bins_ED = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_early_delay[0]) & (gv.time[bin]<=gv.t_early_delay[1]) ]
+        gv.bins_ED = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_early_delay[0]) and (gv.time[bin]<=gv.t_early_delay[1]) ]
         
-        gv.bins_dist = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_distractor[0]) & (gv.time[bin]<=gv.t_distractor[1]) ]
+        gv.bins_dist = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_distractor[0]) and (gv.time[bin]<=gv.t_distractor[1]) ]
         
-        gv.bins_MD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_delay[0]) & (gv.time[bin]<=gv.t_DRT_delay[1]) ]
+        gv.bins_MD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_delay[0]) and (gv.time[bin]<=gv.t_DRT_delay[1]) ]
         
-        gv.bins_LD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_late_delay[0]) & (gv.time[bin]<=gv.t_late_delay[1]) ] 
+        gv.bins_LD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_late_delay[0]) and (gv.time[bin]<=gv.t_late_delay[1]) ] 
         
-        gv.bins_cue = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_cue[0]) & (gv.time[bin]<=gv.t_cue[1]) ] 
+        gv.bins_cue = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_cue[0]) and (gv.time[bin]<=gv.t_cue[1]) ] 
 
-        gv.bins_DRT_rwd = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_reward[0]) & (gv.time[bin]<=gv.t_DRT_reward[1]) ] 
+        gv.bins_DRT_rwd = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_reward[0]) and (gv.time[bin]<=gv.t_DRT_reward[1]) ] 
 
-        gv.bins_test = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_test[0]) & (gv.time[bin]<=gv.t_test[1]) ] 
+        gv.bins_test = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_test[0]) and (gv.time[bin]<=gv.t_test[1]) ] 
     else:
-        gv.bins_baseline = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_baseline[1]-t_start) & (gv.time[bin]<=gv.t_baseline[1]) ] 
+        gv.bins_baseline = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_baseline[1]-t_start) and (gv.time[bin]<=gv.t_baseline[1]) ] 
     
-        gv.bins_stim = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_sample[1]-t_start) & (gv.time[bin]<=gv.t_sample[1]) ] 
+        gv.bins_stim = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_sample[1]-t_start) and (gv.time[bin]<=gv.t_sample[1]) ] 
     
-        gv.bins_ED = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_early_delay[1]-t_start) & (gv.time[bin]<=gv.t_early_delay[1]) ]
+        gv.bins_ED = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_early_delay[1]-t_start) and (gv.time[bin]<=gv.t_early_delay[1]) ]
         
-        gv.bins_dist = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_distractor[1]-t_start) & (gv.time[bin]<=gv.t_distractor[1]) ]
+        gv.bins_dist = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_distractor[1]-t_start) and (gv.time[bin]<=gv.t_distractor[1]) ]
         
-        gv.bins_MD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_delay[1]-t_start) & (gv.time[bin]<=gv.t_DRT_delay[1]) ]
+        gv.bins_MD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_delay[1]-t_start) and (gv.time[bin]<=gv.t_DRT_delay[1]) ]
         
-        gv.bins_LD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_late_delay[1]-t_start) & (gv.time[bin]<=gv.t_late_delay[1]) ] 
+        gv.bins_LD = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_late_delay[1]-t_start) and (gv.time[bin]<=gv.t_late_delay[1]) ] 
         
-        gv.bins_cue = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_cue[1]-t_start) & (gv.time[bin]<=gv.t_cue[1]) ] 
+        gv.bins_cue = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_cue[1]-t_start) and (gv.time[bin]<=gv.t_cue[1]) ] 
 
-        gv.bins_DRT_rwd = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_reward[1]-t_start) & (gv.time[bin]<=gv.t_DRT_reward[1]) ] 
+        gv.bins_DRT_rwd = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_DRT_reward[1]-t_start) and (gv.time[bin]<=gv.t_DRT_reward[1]) ] 
 
-        gv.bins_test = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_test[1]-t_start) & (gv.time[bin]<=gv.t_test[1]) ] 
+        gv.bins_test = [ bin for bin in gv.bins if (gv.time[bin]>=gv.t_test[1]-t_start) and (gv.time[bin]<=gv.t_test[1]) ] 
 
 def get_X_y_epochs(X_S1_trials, X_S2_trials): 
 

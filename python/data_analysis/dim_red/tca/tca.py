@@ -11,15 +11,20 @@ import data.fct_facilities as fac
 importlib.reload(fac) ; 
 fac.SetPlotParams() 
 
-import preprocessing as pp 
-from plotting import * 
+import data.preprocessing as pp
+importlib.reload(pp) ; 
+
+import data.plotting as pl
+importlib.reload(pl) ; 
+
+import tensortools as tt
 
 pal = ['r','b','y'] 
 gv.samples = ['S1', 'S2']
 gv.trials = ['ND', 'D1', 'D2']
 pc_shift = 0
 
-n_components = 7
+n_components = 100
 gv.correct_trial = 0  # 17-14-16 / 6
 gv.laser_on = 0
 
@@ -67,10 +72,10 @@ for gv.mouse in [gv.mice[1]] :
     for trial in range(X_trials.shape[0]):
         X_trials[trial] = pp.normalize(X_trials[trial]) 
         
-    bins = np.arange(gv.bins_ED[0], gv.bins_LD[-1])
+    # bins = np.arange(gv.bins_ED[0], gv.bins_LD[-1])
     
-    X_trials = X_trials[:,:, bins] 
-    # X_trials = gaussian_filter1d(X_trials,sigma=3) 
+    # X_trials = X_trials[:,:, bins] 
+    # # X_trials = gaussian_filter1d(X_trials,sigma=3) 
     print('X_trials', X_trials.shape)
         
     data = np.moveaxis(X_trials, 0, 2) 
@@ -80,22 +85,36 @@ for gv.mouse in [gv.mice[1]] :
     ensemble = tt.Ensemble(fit_method="ncp_hals") 
     ensemble.fit(data, ranks=range(1, n_components), replicates=2) 
 
-    fig, axes = plt.subplots(1, 2)
+    fig, axes = plt.subplots(1, 2)  
     tt.plot_objective(ensemble, ax=axes[0])   # plot reconstruction error as a function of num components.
     tt.plot_similarity(ensemble, ax=axes[1])  # plot model similarity as a function of num components.
     fig.tight_layout()
 
-    # Plot the low-d factors for an example model, e.g. rank-2, first optimization run / replicate.
-    num_components = 6
-    replicate = 0 
-    tt.plot_factors(ensemble.factors(num_components)[replicate], plots=['bar','line','scatter'])  # plot the low-d factors 
+    # # # Plot the low-d factors for an example model, e.g. rank-2, first optimization run / replicate.
+    num_components = np.amin([n_components-1, 10])
+    # replicate = 0 
+    # tt.plot_factors(ensemble.factors(num_components)[replicate], plots=['bar','line','scatter'])  # plot the low-d factors 
 
-    fig = plt.gcf()
-    for axis in [1,4,7,10,13,16,19]:
-        ax = fig.axes[axis] 
-        add_stim_to_plot(ax, bin_start=gv.bins_ED[0])
-        # ax.set_xlim([0, gv.bins_test[1]+1])
+    # fig = plt.gcf()
+    # for axis in [1,4,7,10,13,16]:
+    #     ax = fig.axes[axis] 
+    #     pl.add_stim_to_plot(ax, bin_start=gv.bins_ED[0])
+    #     # ax.set_xlim([0, gv.bins_test[1]+1])
 
-    neuron_factors = ensemble.factors(n_components)[0][0]
-    time_factors = ensemble.factors(n_components)[0][1]
-    trial_factors = ensemble.factors(n_components)[0][2]
+    neuron_factors = ensemble.factors(num_components)[0][0]
+    time_factors = ensemble.factors(num_components)[0][1]
+    trial_factors = ensemble.factors(num_components)[0][2]
+
+    # X_tca = np.empty( [neuron_factors.shape[0], time_factors.shape[0], trial_factors.shape[0]] )
+    # for n in range(neuron_factors.shape[0]):
+    #     for t in range(time_factors.shape[0]):
+    #         for k in range(trial_factors.shape[0]):
+    #             for r in range(trial_factors.shape[1]):
+    #                 X_tca[n,t,k] = np.sum(neuron_factors[n]*time_factors[t]*trial_factors[k])
+
+    X_tca = np.empty( [trial_factors.shape[0], trial_factors.shape[1], time_factors.shape[0]] )
+    for k in range(trial_factors.shape[0]):
+        for t in range(time_factors.shape[0]):
+            for r in range(trial_factors.shape[1]):
+                X_tca[k,r,t] = trial_factors[k,r]*time_factors[t,r]
+

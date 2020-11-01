@@ -116,11 +116,6 @@ def EDvsLD(X_proj, IF_CONCAT, IF_EDvsLD, IF_CLASSIFY, NO_PCA=0, C=1e0):
         print('Use a linear classifier') 
 
     print('n_boot', gv.n_boot)
-    # IF_CONCAT = 0 
-    # IF_EDvsLD = 1 
-
-    # IF_BOOTSTRAP = 0 
-    # IF_CLASSIFY = 1
     
     IF_SHUFFLE = 0 
 

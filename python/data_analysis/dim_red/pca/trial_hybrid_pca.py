@@ -11,7 +11,7 @@ import data.fct_facilities as fac
 importlib.reload(fac) ; 
 fac.SetPlotParams() 
 
-import preprocessing as prep 
+import data.preprocessing as pp 
 from plotting import * 
 
 import detrend as detrend 
@@ -22,12 +22,13 @@ pc_shift = 0
 
 gv.n_components = 3 #'mle' #75% => 11 C57/ChR - 18 Jaws 
 gv.correct_trial = 0  # 17-14-16 / 6
-gv.laser_on = 1 
+gv.laser_on = 1
+AVG_BL_TRIALS = 1
 
 IF_DETREND = 0 
-POLY_DEG = 1
+POLY_DEG = 1 
 
-for gv.mouse in [gv.mice[1]] : 
+for gv.mouse in [gv.mice[2]] : 
 
     data.get_sessions_mouse() 
     data.get_stimuli_times() 
@@ -39,27 +40,17 @@ for gv.mouse in [gv.mice[1]] :
 
         data.get_delays_times()  
         data.get_frame_rate() 
-        data.get_bins(t_start=0.5) 
+        data.get_bins(t_start=0.0) 
         
-        # F0 = np.mean(X[:,:,gv.bins_baseline],axis=2) 
-        # F0 = F0[:,:, np.newaxis] 
-
-        F0 = np.mean(np.mean(X[:,:,gv.bins_baseline],axis=2), axis=0)
-        F0 = F0[np.newaxis,:, np.newaxis] 
+        # X = pp.dFF0(X, AVG_TRIALS=AVG_BL_TRIALS) 
         
-        # idx = np.where(F0<=0.01)[1] 
-        # F0 = np.delete(F0, idx, axis=1) 
-        # X = np.delete(X, idx, axis=1) 
-        
-        X = (X -F0) / (F0 + gv.eps) 
-
         if IF_DETREND: 
             X_trend = [] 
             for n_trial in range(X.shape[0]): 
                 fit_values = detrend.detrend_data(X[n_trial], poly_fit=1, degree=POLY_DEG) 
                 X_trend.append(fit_values) 
-            X_trend = np.asarray(X_trend) 
-
+            X_trend = np.asarray(X_trend)
+            
             X = X - X_trend[:,np.newaxis,:] 
             
         trials = [] 
@@ -67,8 +58,18 @@ for gv.mouse in [gv.mice[1]] :
         for gv.trial in gv.trials: 
             X_S1, X_S2 = data.get_S1_S2_trials(X, y) 
             data.get_trial_types(X_S1) 
+            
+            F0_S1 = pp.findBaselineF0(X_S1, gv.frame_rate)
+            X_S1 = (X_S1 - F0_S1)/(F0_S1 + gv.eps)
 
-            X_S1_S2 = np.vstack((X_S1, X_S2)) 
+            F0_S2 = pp.findBaselineF0(X_S2, gv.frame_rate)
+            X_S2 = (X_S2 - F0_S2)/(F0_S2 + gv.eps)
+
+            # X_S1 = pp.dFF0(X_S1, AVG_TRIALS=AVG_BL_TRIALS) 
+            # X_S2 = pp.dFF0(X_S2, AVG_TRIALS=AVG_BL_TRIALS) 
+            
+            X_S1_S2 = np.vstack((X_S1, X_S2))
+            
             print('X_S1', X_S1.shape, 'X_S2', X_S2.shape) 
             if 'all' in gv.samples: 
                 # concatenate S1 and S2 trials 
@@ -114,33 +115,33 @@ for gv.mouse in [gv.mice[1]] :
         
         print(X_proj.shape) 
 
-        if gv.laser_on:
-            figname = '%s_%s_pca_laser_on_%d' % (gv.mouse, gv.session, pc_shift)
-        else:
-            figname = '%s_%s_pca_laser_off_%d' % (gv.mouse, gv.session, pc_shift)
+        # if gv.laser_on:
+        #     figname = '%s_%s_pca_laser_on_%d' % (gv.mouse, gv.session, pc_shift)
+        # else:
+        #     figname = '%s_%s_pca_laser_off_%d' % (gv.mouse, gv.session, pc_shift)
 
-        plt.figure(figname, figsize=[10, 2.8])    
-        x = gv.time 
-        for n_pc in range(np.amin([gv.n_components,3])): 
-            ax = plt.figure(figname).add_subplot(1, 3, n_pc+1) 
-            for i, trial in enumerate(gv.trials): 
-                for j, sample in enumerate(gv.samples): 
-                    dum = X_proj[i,j,:,n_pc+pc_shift,:].transpose() 
-                    y = np.mean( dum, axis=1) 
-                    y = gaussian_filter1d(y, sigma=1) 
+        # plt.figure(figname, figsize=[10, 2.8])    
+        # x = gv.time 
+        # for n_pc in range(np.amin([gv.n_components,3])): 
+        #     ax = plt.figure(figname).add_subplot(1, 3, n_pc+1) 
+        #     for i, trial in enumerate(gv.trials): 
+        #         for j, sample in enumerate(gv.samples): 
+        #             dum = X_proj[i,j,:,n_pc+pc_shift,:].transpose() 
+        #             y = np.mean( dum, axis=1) 
+        #             y = gaussian_filter1d(y, sigma=1) 
                     
-                    ax.plot(x, y, color=pal[i]) 
-                    ci = prep.conf_inter(dum) 
-                    ax.fill_between(x, ci[0], ci[1] , color=pal[i], alpha=.1) 
+        #             ax.plot(x, y, color=pal[i]) 
+        #             ci = pp.conf_inter(dum) 
+        #             ax.fill_between(x, ci[0], ci[1] , color=pal[i], alpha=.1) 
                     
-                add_stim_to_plot(ax) 
-                ax.set_xlim([0, gv.t_test[1]+1]) 
+        #         add_stim_to_plot(ax) 
+        #         ax.set_xlim([0, gv.t_test[1]+1]) 
                     
-            ax.set_ylabel('PC {}'.format(n_pc+pc_shift+1)) 
-            ax.set_xlabel('Time (s)') 
-            sns.despine(right=True, top=True)
-            if n_pc == np.amin([gv.n_components,3])-1: 
-                add_orientation_legend(ax) 
+        #     ax.set_ylabel('PC {}'.format(n_pc+pc_shift+1)) 
+        #     ax.set_xlabel('Time (s)') 
+        #     sns.despine(right=True, top=True)
+        #     if n_pc == np.amin([gv.n_components,3])-1: 
+        #         add_orientation_legend(ax) 
 
-        figdir = figDir() 
-        save_fig(figname, figdir) 
+        # figdir = figDir() 
+        # save_fig(figname, figdir) 
