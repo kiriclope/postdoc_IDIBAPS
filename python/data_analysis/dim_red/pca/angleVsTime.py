@@ -83,7 +83,7 @@ def cosEDvsTime(agl, dum=0):
     if dum :
         aglED_avg = np.mean(aglED)
         aglED = np.array([aglED_avg, aglED_avg, aglED_avg]) 
-        
+    
     x = gv.t_delay[binED[-1]:-1] 
     for n_trial in range(len(gv.trials)): 
         y = np.cos( (aglED[n_trial, np.newaxis] - agl[n_trial, binED[-1]:-1]) *np.pi/180.) 
@@ -168,8 +168,9 @@ def get_angle(coefs):
 
     alp=np.empty(coefs.shape[0]) 
     dum = np.ones(coefs.shape[1])
+    
     for i in np.arange(0, coefs.shape[0]): 
-        alpha = angle_between(dum, coefs[i]) 
+        alpha = angle_between(coefs[0], coefs[i]) 
         alp[i] = alpha*180.0/np.pi 
         
     return alp 

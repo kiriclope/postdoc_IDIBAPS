@@ -31,8 +31,8 @@ gv.correct_trial = 0  # 17-14-16 / 6
 gv.laser_on = 0 
 
 gv.DENOISED=1
-gv.perF0 = 0  
 gv.AVG_BL_TRIALS = 0 
+gv.perF0 = 0  
 gv.DF_ONLY = 0 
 gv.normFluo = 0
 

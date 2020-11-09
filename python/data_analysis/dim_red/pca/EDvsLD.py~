@@ -116,11 +116,6 @@ def EDvsLD(X_proj, IF_CONCAT, IF_EDvsLD, IF_CLASSIFY, NO_PCA=0, C=1e0):
         print('Use a linear classifier') 
 
     print('n_boot', gv.n_boot)
-    # IF_CONCAT = 0 
-    # IF_EDvsLD = 1 
-
-    # IF_BOOTSTRAP = 0 
-    # IF_CLASSIFY = 1
     
     IF_SHUFFLE = 0 
 
@@ -134,10 +129,10 @@ def EDvsLD(X_proj, IF_CONCAT, IF_EDvsLD, IF_CLASSIFY, NO_PCA=0, C=1e0):
     X_MD = np.mean(X_proj[:,:,:,:,gv.bins_MD],axis=-1) 
     X_LD = np.mean(X_proj[:,:,:,:,gv.bins_LD],axis=-1) 
 
-    # print('Stim', X_stim.shape)
-    # print('ED', X_ED.shape)
-    # print('MD', X_MD.shape)
-    # print('LD', X_LD.shape)
+    # print('Stim', X_stim.shape) 
+    # print('ED', X_ED.shape) 
+    # print('MD', X_MD.shape) 
+    # print('LD', X_LD.shape) 
     
     if IF_CONCAT:
         X_stim_S1 = []
@@ -231,7 +226,7 @@ def EDvsLD(X_proj, IF_CONCAT, IF_EDvsLD, IF_CLASSIFY, NO_PCA=0, C=1e0):
             q3_dist = np.percentile(dist_samples, 75, axis=0) - mean_dist 
             
 
-            print('trial', gv.trial, 'dist', mean_dist, 'q1', q1_dist, 'q3', q3_dist)
+            print('trial', gv.trial, 'dist', mean_dist, 'q1', q1_dist, 'q3', q3_dist) 
             
             mean_cos = np.mean(cos_samples, axis=0) 
             q1 = mean_cos - np.percentile(cos_samples, 25, axis=0) 
