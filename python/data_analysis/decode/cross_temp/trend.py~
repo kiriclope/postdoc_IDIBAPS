@@ -1,0 +1,19 @@
+from std_lib import * 
+sys.path.insert(1, '/homecentral/alexandre.mahrach/gdrive/postdoc_IDIBAPS/python/data_analysis') 
+from sklearn_lib import * 
+
+import data.constants as gv
+importlib.reload(gv) ;
+
+import data.utils as data 
+importlib.reload(data) ; 
+
+import utils as fct 
+importlib.reload(fct) ; 
+
+import data.fct_facilities as fac
+importlib.reload(fac) ;
+fac.SetPlotParams()
+
+script_dir = os.path.dirname(__file__)
+figs_dir = os.path.join(script_dir, 'figs/') 

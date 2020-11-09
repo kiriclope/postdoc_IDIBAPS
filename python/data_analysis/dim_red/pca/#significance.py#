@@ -1,0 +1,20 @@
+import numpy as np
+import scipy.stats as stats 
+
+def two_sample_test(sample_1, sample_2):
+
+    mean_1 = np.mean(sample_1)
+    mean_2 = np.mean(sample_2)
+
+    var_1 = np.var(sample_1)
+    var_2 = np.var(sample_2)
+
+    n1 = len(sample_1)
+    n2 = len(sample_2)
+    
+    SE = np.sqrt(var_1/n1 + var_2/n2)
+
+    t_stat = (mean_1-mean_2) / SE
+    p_value = stats.t.sf(np.abs(t_stat), n1-1)*2
+
+    return p_value

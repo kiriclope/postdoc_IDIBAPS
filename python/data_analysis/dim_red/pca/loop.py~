@@ -1,0 +1,14 @@
+import time
+from libs import * 
+sys.path.insert(1, '/homecentral/alexandre.mahrach/gdrive/postdoc_IDIBAPS/python/data_analysis') 
+
+from EDvsLD import *
+
+def loop(X_proj):
+    for IF_CONCAT in [0,1]:
+        # for IF_EDvsLD in [0,1]: 
+        EDvsLD(X_proj, IF_CONCAT, 1, 0, 1) 
+        plt.clf() 
+        
+        EDvsLD(X_proj, IF_CONCAT, 1, 1, 1) 
+        plt.clf() 
